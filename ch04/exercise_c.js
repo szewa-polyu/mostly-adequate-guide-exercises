@@ -6,3 +6,6 @@
 
 // max :: [Number] -> Number
 //const max = xs => reduce((acc, x) => (x >= acc ? x : acc), -Infinity, xs);
+
+// max :: [Number] -> Number
+const max = reduce(keepHighest, -Infinity);
