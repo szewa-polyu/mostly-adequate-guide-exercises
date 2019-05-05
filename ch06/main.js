@@ -17,14 +17,19 @@ require(['jquery', 'ramda'], ($, { compose, curry, map, prop }) => {
   const query = t => `?tags=${t}&format=json&jsoncallback=?`;
   const url = t => `https://${host}${path}${query(t)}`;
 
+  /**
+   * Optimization
+   * compose(map(f), map(g)) === map(compose(f, g));
+   * compose(map(img), map(mediaUrl)) === map(compose(img, mediaUrl));
+   */
   const img = src => $('<img />', { src });
   const mediaUrl = compose(prop('m'), prop('media'));
-  const mediaUrls = compose(map(mediaUrl), prop('items'));
-  const images = compose(map(img), mediaUrls);
+  const mediaToImg = compose(img, mediaUrl);
+  const images = compose(map(mediaToImg), prop('items'));
 
   // -- Impure ---------------------------------------------------------
   const render = compose(Impure.setHtml('#js-main'), images);
-  const app = compose(Impure.getJSON(render), url);
+  const app = compose(Impure.getJSON(compose(render, Impure.trace('response:'))), url);
 
   app('cats');
 });
